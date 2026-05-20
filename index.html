@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vidscape — Your Cinematic Escape</title>
+  <meta name="description" content="Vidscape automatically transforms your raw travel footage into polished, shareable videos — no editing skills required." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --lavender:     #AFA9EC;
+      --lavender-lt:  #CECBF6;
+      --lavender-xlt: #EEEDFE;
+      --purple:       #534AB7;
+      --purple-dk:    #3C3489;
+      --purple-xdk:   #26215C;
+      --fog:          #F8F7FF;
+      --fog-2:        #EEEDFE;
+      --text:         #1A1640;
+      --text-lt:      #3C3489;
+      --muted:        #7B78A8;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--fog);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(175,169,236,.08) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      top: 20vh;
+      left: -15vw;
+      width: 70vw;
+      height: 70vh;
+      background: radial-gradient(ellipse, rgba(175,169,236,.18) 0%, transparent 65%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 3rem;
+      background: rgba(248,247,255,.88);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(175,169,236,.2);
+    }
+
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--purple-xdk);
+      text-decoration: none;
+      letter-spacing: .02em;
+    }
+    .nav-logo span { color: var(--purple); }
+
+    .nav-back {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .75rem;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: .06em;
+      transition: color .2s;
+    }
+    .nav-back:hover { color: var(--purple); }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8rem 2rem 4rem;
+    }
+
+    .hero-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .7rem;
+      color: var(--purple);
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeUp .6s ease forwards .2s;
+    }
+
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3.5rem, 9vw, 7rem);
+      font-weight: 600;
+      color: var(--purple-xdk);
+      line-height: 1;
+      letter-spacing: -.01em;
+      margin-bottom: 1rem;
+      opacity: 0;
+      animation: fadeUp .7s ease forwards .35s;
+    }
+
+    .hero-title em {
+      font-style: italic;
+      color: var(--purple);
+    }
+
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.15rem);
+      color: var(--text-lt);
+      max-width: 500px;
+      line-height: 1.75;
+      margin: 0 auto 3rem;
+      font-weight: 300;
+      opacity: 0;
+      animation: fadeUp .7s ease forwards .5s;
+    }
+
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: .6rem;
+      padding: .9rem 2.2rem;
+      background: var(--purple);
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .9rem;
+      font-weight: 500;
+      text-decoration: none;
+      border-radius: 100px;
+      transition: background .25s, transform .2s;
+      opacity: 0;
+      animation: fadeUp .7s ease forwards .65s;
+    }
+    .hero-cta:hover {
+      background: var(--purple-dk);
+      transform: translateY(-2px);
+    }
+
+    /* video mockup */
+    .video-mockup {
+      position: relative;
+      width: 100%;
+      max-width: 560px;
+      margin: 4rem auto 0;
+      opacity: 0;
+      animation: fadeUp .8s ease forwards .8s;
+    }
+
+    .video-player {
+      background: var(--purple-xdk);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(38,33,92,.2);
+      aspect-ratio: 16/9;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .video-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(83,74,183,.4), rgba(175,169,236,.2));
+    }
+
+    .video-play {
+      width: 64px;
+      height: 64px;
+      background: rgba(255,255,255,.15);
+      backdrop-filter: blur(8px);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      position: relative;
+      z-index: 1;
+      border: 1px solid rgba(255,255,255,.2);
+    }
+
+    .video-label {
+      position: absolute;
+      bottom: 1rem;
+      left: 1rem;
+      right: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 1;
+    }
+
+    .video-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem;
+      color: white;
+      font-weight: 600;
+    }
+
+    .video-duration {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .65rem;
+      color: rgba(255,255,255,.7);
+      background: rgba(0,0,0,.3);
+      padding: .2rem .5rem;
+      border-radius: 4px;
+    }
+
+    /* progress bar */
+    .video-progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: rgba(255,255,255,.2);
+    }
+    .video-progress-fill {
+      height: 100%;
+      width: 35%;
+      background: var(--lavender-lt);
+    }
+
+    /* clip thumbnails below player */
+    .clip-row {
+      display: flex;
+      gap: .75rem;
+      margin-top: .75rem;
+    }
+
+    .clip-thumb {
+      flex: 1;
+      aspect-ratio: 16/9;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 2px solid transparent;
+      transition: border-color .2s;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+    .clip-thumb:first-child { border-color: var(--lavender); }
+    .clip-thumb:nth-child(1) { background: linear-gradient(135deg, #FAC775, #EF9F27); }
+    .clip-thumb:nth-child(2) { background: linear-gradient(135deg, #5DCAA5, #1D9E75); }
+    .clip-thumb:nth-child(3) { background: linear-gradient(135deg, #AFA9EC, #7F77DD); }
+    .clip-thumb:nth-child(4) { background: linear-gradient(135deg, #F09595, #E24B4A); }
+
+    /* FEATURES */
+    #features {
+      position: relative;
+      z-index: 1;
+      padding: 6rem 2rem;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .section-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .7rem;
+      color: var(--purple);
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 600;
+      color: var(--purple-xdk);
+      margin-bottom: 1rem;
+      line-height: 1.1;
+    }
+
+    .section-sub {
+      font-size: 1rem;
+      color: var(--text-lt);
+      max-width: 480px;
+      line-height: 1.7;
+      margin-bottom: 3rem;
+      font-weight: 300;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .feature-card {
+      background: white;
+      border: 1px solid rgba(175,169,236,.2);
+      border-radius: 16px;
+      padding: 2rem;
+      transition: transform .3s, border-color .3s, box-shadow .3s;
+    }
+    .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(175,169,236,.5);
+      box-shadow: 0 8px 24px rgba(38,33,92,.08);
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--fog-2);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .feature-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--purple-xdk);
+      margin-bottom: .5rem;
+    }
+
+    .feature-desc {
+      font-size: .9rem;
+      color: var(--text-lt);
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    /* COMING SOON */
+    #notify {
+      position: relative;
+      z-index: 1;
+      padding: 6rem 2rem;
+      text-align: center;
+      border-top: 1px solid rgba(175,169,236,.2);
+    }
+
+    .notify-inner { max-width: 480px; margin: 0 auto; }
+
+    .coming-soon-badge {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .7rem;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      padding: .4rem 1.2rem;
+      background: var(--fog-2);
+      color: var(--purple);
+      border-radius: 100px;
+      margin-bottom: 1.5rem;
+    }
+
+    #notify h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 600;
+      color: var(--purple-xdk);
+      margin-bottom: 1rem;
+      line-height: 1.1;
+    }
+
+    #notify p {
+      font-size: 1rem;
+      color: var(--text-lt);
+      line-height: 1.7;
+      margin-bottom: 2rem;
+      font-weight: 300;
+    }
+
+    footer {
+      position: relative;
+      z-index: 1;
+      padding: 2rem 3rem;
+      border-top: 1px solid rgba(175,169,236,.15);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    footer p {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .7rem;
+      color: var(--muted);
+      letter-spacing: .04em;
+    }
+
+    footer a { color: var(--purple); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 600px) {
+      nav { padding: 1rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="https://imaginadev.com" class="nav-logo"><span>V</span>idscape</a>
+    <a href="https://imaginadev.com" class="nav-back">← imaginadev.com</a>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-eyebrow">by ImaginaDev LLC</div>
+    <h1 class="hero-title">Your cinematic<br><em>escape.</em></h1>
+    <p class="hero-sub">
+      Vidscape automatically transforms your raw travel footage into polished, shareable videos — no editing skills, no timeline, no stress.
+    </p>
+    <a href="#notify" class="hero-cta">Get Early Access →</a>
+
+    <div class="video-mockup">
+      <div class="video-player">
+        <div class="video-overlay"></div>
+        <div class="video-play">▶</div>
+        <div class="video-label">
+          <span class="video-title">Patagonia · January 2024</span>
+          <span class="video-duration">2:34</span>
+        </div>
+        <div class="video-progress">
+          <div class="video-progress-fill"></div>
+        </div>
+      </div>
+      <div class="clip-row">
+        <div class="clip-thumb">🏔️</div>
+        <div class="clip-thumb">🌊</div>
+        <div class="clip-thumb">🌅</div>
+        <div class="clip-thumb">🦅</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="section-eyebrow">// how it works</div>
+    <h2 class="section-title">Raw footage in.<br>Cinema out.</h2>
+    <p class="section-sub">Vidscape does the heavy lifting so your memories look the way they felt.</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🎬</div>
+        <div class="feature-title">Automatic assembly</div>
+        <p class="feature-desc">Vidscape selects the best clips from your footage, trims the dead moments, and assembles them into a coherent cinematic story.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎵</div>
+        <div class="feature-title">Music that fits</div>
+        <p class="feature-desc">Intelligent music selection that matches the mood and pacing of your footage — from serene mountain hikes to chaotic city markets.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📤</div>
+        <div class="feature-title">Share-ready in minutes</div>
+        <p class="feature-desc">Export directly to Instagram, YouTube, or save to your camera roll. Your cinematic travel story, ready to share with the world.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="notify">
+    <div class="notify-inner">
+      <div class="coming-soon-badge">Coming Soon</div>
+      <h2>Your story,<br><em>beautifully told.</em></h2>
+      <p>Vidscape is in development for iOS and Mac. Join the waitlist and be the first to turn your footage into something extraordinary.</p>
+      <a href="mailto:info@imaginadev.com?subject=Vidscape Waitlist" class="hero-cta">Join the Waitlist →</a>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2026 <a href="https://imaginadev.com">ImaginaDev LLC</a></p>
+    <p>/* develop with imagination */</p>
+  </footer>
+
+</body>
+</html>
